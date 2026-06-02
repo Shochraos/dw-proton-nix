@@ -28,7 +28,7 @@ jobs:
             BASE=$(echo "$LATEST_TAG" | grep -oP "\d+\.\d+")
             RELEASE=$(echo "$LATEST_TAG" | grep -oP "(?<=-)\d+$")
             
-            DOWNLOAD_URL=$(echo "$RELEASE_JSON" | jq -r ".[0].assets[] | select(.name | test(\"\\.tar\\.(zst|xz|gz)$\")) | .browser_download_url" | head -n1)
+            DOWNLOAD_URL=$(echo "$RELEASE_JSON" | jq -r ".[0].assets[] | select(.name | test(\"dwproton-.*-x86_64\\.tar\\.(xz|zst)$\")) | .browser_download_url" | head -n1)
             
             if [ -z "$DOWNLOAD_URL" ]; then
               DOWNLOAD_URL=$(echo "$RELEASE_JSON" | jq -r ".[0].assets[0].browser_download_url")
@@ -48,7 +48,7 @@ jobs:
             mv versions_tmp.json versions.json
           '
 
-      - name: Commit and push directly to main
+      - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update dwproton version"
