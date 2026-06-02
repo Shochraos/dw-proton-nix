@@ -1,0 +1,57 @@
+name: Update dwproton Version
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+
+      - name: Install dependencies
+        run: nix-env -iA nixpkgs.jq nixpkgs.curl nixpkgs.gnugrep
+
+      - name: Check for Updates
+        run: |
+          RELEASE_JSON=$(curl -s "https://dawn.wine/api/v1/repos/dawn-winery/dwproton/releases?limit=1")
+          LATEST_TAG=$(echo "$RELEASE_JSON" | jq -r '.[0].tag_name')
+          
+          BASE=$(echo "$LATEST_TAG" | grep -oP '\d+\.\d+')
+          RELEASE=$(echo "$LATEST_TAG" | grep -oP '(?<=-)\d+$')
+          
+          DOWNLOAD_URL=$(echo "$RELEASE_JSON" | jq -r '.[0].assets[] | select(.name | test("\\.tar\\.(zst|xz|gz)$")) | .browser_download_url' | head -n1)
+          
+          if [ -z "$DOWNLOAD_URL" ]; then
+            DOWNLOAD_URL=$(echo "$RELEASE_JSON" | jq -r '.[0].assets[0].browser_download_url')
+          fi
+          
+          TEMP_FILE=$(mktemp)
+          curl -L "$DOWNLOAD_URL" -o "$TEMP_FILE"
+          HASH=$(nix hash file --base64 --type sha256 "$TEMP_FILE")
+          rm "$TEMP_FILE"
+          
+          jq --arg base "$BASE" \
+             --arg release "$RELEASE" \
+             --arg hash "sha256-$HASH" \
+             '.base = $base | .release = $release | .hash = $hash' \
+             versions.json > versions_tmp.json
+             
+          mv versions_tmp.json versions.json
+
+      - name: Commit and push directly to main
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update dwproton version"
+          file_pattern: "versions.json"
+          branch: main
