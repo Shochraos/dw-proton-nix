@@ -10,7 +10,7 @@ stdenv.mkDerivation {
   version = "${dwProtonVersions.base}-${dwProtonVersions.release}";
 
   src = fetchurl {
-    url = "https://dawn.wine/dawn-winery/dwproton/releases/download/v${dwProtonVersions.base}-${dwProtonVersions.release}/dwproton-${dwProtonVersions.base}-${dwProtonVersions.release}.tar.zst";
+    url = "https://dawn.wine/dawn-winery/dwproton/releases/download/dwproton-${dwProtonVersions.base}-${dwProtonVersions.release}/dwproton-${dwProtonVersions.base}-${dwProtonVersions.release}.tar.xz";
     inherit (dwProtonVersions) hash;
   };
 
