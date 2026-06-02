@@ -17,9 +17,8 @@ stdenv.mkDerivation {
   nativeBuildInputs = [ zstd ];
 
   installPhase = ''
-    tar -I zstd -xf $src
-    mkdir -p $out/share/steam/compatibilitytools.d
-    mv usr/share/steam/compatibilitytools.d/dw-proton $out/share/steam/compatibilitytools.d/
+    mkdir -p $out/share/steam/compatibilitytools.d/dw-proton
+    mv * $out/share/steam/compatibilitytools.d/dw-proton/
   '';
 
   meta = with lib; {
