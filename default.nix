@@ -17,7 +17,7 @@ stdenv.mkDerivation rec {
   };
 
   postUnpack = ''
-    substituteInPlace "compatibility.vdf" \
+    substituteInPlace "compatibilitytool.vdf" \
       --replace-fail "${archiveName}" "${protonDisplayName}"
   '';
 
