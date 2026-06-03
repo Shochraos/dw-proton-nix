@@ -16,7 +16,7 @@ stdenv.mkDerivation rec {
     inherit (dwProtonVersions) hash;
   };
 
-  postUnpack = ''
+  postPatch = ''
     substituteInPlace "compatibilitytool.vdf" \
       --replace-fail "${archiveName}" "${protonDisplayName}"
   '';
