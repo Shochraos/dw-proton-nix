@@ -1,24 +1,33 @@
 { lib
 , stdenv
 , fetchurl
-, zstd
 , dwProtonVersions
 }:
 
-stdenv.mkDerivation {
-  name = "dw-proton";
+stdenv.mkDerivation rec {
+  pname = "dw-proton";
   version = "${dwProtonVersions.base}-${dwProtonVersions.release}";
 
+  archiveName = "dwproton-${version}-x86_64";
+  protonDisplayName = "DW-Proton-${version}";
+
   src = fetchurl {
-    url = "https://dawn.wine/dawn-winery/dwproton/releases/download/dwproton-${dwProtonVersions.base}-${dwProtonVersions.release}/dwproton-${dwProtonVersions.base}-${dwProtonVersions.release}-x86_64.tar.xz";
+    url = "https://dawn.wine/dawn-winery/dwproton/releases/download/dwproton-${version}/${archiveName}.tar.xz";
     inherit (dwProtonVersions) hash;
   };
 
-  nativeBuildInputs = [ zstd ];
+  postUnpack = ''
+    substituteInPlace "compatibility.vdf" \
+      --replace-fail "${archiveName}" "${protonDisplayName}"
+  '';
 
   installPhase = ''
+    runHook preInstall
+
     mkdir -p $out/share/steam/compatibilitytools.d/dw-proton
     mv * $out/share/steam/compatibilitytools.d/dw-proton/
+
+    runHook postInstall
   '';
 
   meta = with lib; {
