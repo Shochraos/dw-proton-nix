@@ -22,12 +22,8 @@ stdenv.mkDerivation rec {
   '';
 
   installPhase = ''
-    runHook preInstall
-
     mkdir -p $out/share/steam/compatibilitytools.d/dw-proton
     mv * $out/share/steam/compatibilitytools.d/dw-proton/
-
-    runHook postInstall
   '';
 
   meta = with lib; {
