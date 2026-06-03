@@ -1,8 +1,8 @@
 # Nix DW Proton
 
-A Nix flake for [DW-Proton](https://dawn.wine/dawn-winery/dwproton), a compatibility tool for Steam Play based on Wine with additional patches and optimizations from Dawn Winery and CachyOS.
+A Nix flake for [DW-Proton](https://dawn.wine/dawn-winery/dwproton), a compatibility tool for Steam Play based on Wine with additional patches and optimizations from Dawn-Winery and CachyOS.
 
-> **Disclaimer**: This is an unofficial, community-maintained Nix package. It is not affiliated with, officially connected to, or endorsed by Valve Corporation, CachyOS, Dawn Winery or any of their subsidiaries or affiliates. The names Proton, CachyOS, Dawn Winery, and any related names are trademarks of their respective owners.
+> **Disclaimer**: This is an unofficial, community-maintained Nix package. It is not affiliated with, officially connected to, or endorsed by Valve Corporation, CachyOS, Dawn-Winery or any of their subsidiaries or affiliates. The names Proton, CachyOS, Dawn-Winery, and any related names are trademarks of their respective owners.
 
 ## Usage
 
@@ -28,7 +28,7 @@ programs.steam = {
 };
 ```
 
-After rebuilding your system, you should see something like "DW-Proton" in Steam's compatibility tools list (Steam -> Settings -> Compatibility).
+After rebuilding your system, you should see something like "DW-Proton-[Version]" in Steam's compatibility tools list (Steam -> Settings -> Compatibility).
 
 ## Updates
 
@@ -52,7 +52,7 @@ This is a community-maintained package and help is welcome! If you'd like to con
    - Report packaging issues (e.g., installation problems, Steam not detecting the tool)
    - Problems with the Nix flake itself
    - Note: For issues with games or Proton itself, please report to:
-     - [DW-Proton](https://dawn.wine/dawn-winery/dwproton) for Dawn Winery-specific issues
+     - [DW-Proton](https://dawn.wine/dawn-winery/dwproton) for Dawn-Winery-specific issues
      - [Valve Proton](https://github.com/ValveSoftware/Proton) for general Proton issues
 
 2. Pull Requests: 
@@ -65,13 +65,13 @@ This is a community-maintained package and help is welcome! If you'd like to con
    - Add usage examples
    - Clarify system requirements
 
-This repository only handles the Nix packaging of Proton-CachyOS. We can't fix issues with the underlying Proton implementation.
+This repository only handles the Nix packaging of DW-Proton. We can't fix issues with the underlying Proton implementation.
 
 ## Credits
 
 This package is just a Nix flake wrapper around:
 
-- [DW-Proton](https://dawn.wine/dawn-winery/dwproton) by the CachyOS team - a fork of Proton-CachyOS with additional optimizations
+- [DW-Proton](https://dawn.wine/dawn-winery/dwproton) by the Dawn-Winery team - a fork of Proton-CachyOS with additional optimizations
 - [Proton](https://github.com/ValveSoftware/Proton) by Valve Corporation - the original compatibility layer for Steam Play
 
 All credit for the underlying software goes to their respective teams. This repository simply provides the Nix packaging to make it easier to use on NixOS.
