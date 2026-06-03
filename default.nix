@@ -5,7 +5,6 @@
 }:
 
 stdenv.mkDerivation rec {
-  pname = "dw-proton";
   version = "${dwProtonVersions.base}-${dwProtonVersions.release}";
 
   archiveName = "dwproton-${version}-x86_64";
