@@ -1,4 +1,4 @@
-# Nix DW Proton
+# Nix DW-Proton
 
 A Nix flake for [DW-Proton](https://dawn.wine/dawn-winery/dwproton), a compatibility tool for Steam Play based on Wine with additional patches and optimizations from Dawn-Winery and CachyOS.
 
