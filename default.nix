@@ -21,6 +21,15 @@ stdenv.mkDerivation rec {
       --replace-fail "${archiveName}" "${protonDisplayName}"
   '';
 
+  postPatch = ''
+    rm -f files/share/default_pfx*/.update-timestamp
+
+    substituteInPlace proton \
+      --replace-fail \
+        "with open(os.path.join(self.prefix_dir, '.update-timestamp'), 'w') as update_timestamp:" \
+        "with open(os.devnull, 'w') as update_timestamp:"
+  '';
+
   installPhase = ''
     mkdir -p $out/share/steam/compatibilitytools.d/dw-proton
     mv * $out/share/steam/compatibilitytools.d/dw-proton/
