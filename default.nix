@@ -19,9 +19,7 @@ stdenv.mkDerivation rec {
   postPatch = ''
     substituteInPlace "compatibilitytool.vdf" \
       --replace-fail "${archiveName}" "${protonDisplayName}"
-  '';
-
-  postPatch = ''
+    
     rm -f files/share/default_pfx*/.update-timestamp
 
     substituteInPlace proton \
