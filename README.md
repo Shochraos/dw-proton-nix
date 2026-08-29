@@ -1,77 +1,59 @@
 # Nix DW-Proton
 
-A Nix flake for [DW-Proton](https://dawn.wine/dawn-winery/dwproton), a compatibility tool for Steam Play based on Wine with additional patches and optimizations from Dawn-Winery and CachyOS.
+Nix packaging for [DW-Proton](https://dawn.wine/dawn-winery/dwproton), Dawn-Winery's fork of Proton-CachyOS, as a Steam Play compatibility tool.
 
-> **Disclaimer**: This is an unofficial, community-maintained Nix package. It is not affiliated with, officially connected to, or endorsed by Valve Corporation, CachyOS, Dawn-Winery or any of their subsidiaries or affiliates. The names Proton, CachyOS, Dawn-Winery, and any related names are trademarks of their respective owners.
+> **AI disclaimer:** The Nix packaging, the update workflow and this README were written with AI assistance. The package installs a binary tarball published on the Dawn-Winery release page. Read what you install.
+
+## How it works
+
+- `versions.json` pins the build (`base`, `release`, sha256 hash). `flake.nix` reads it with `builtins.fromJSON`, and `default.nix` fetches the matching `dwproton-<base>-<release>-x86_64` tarball from the Dawn-Winery release page with that hash. Only `x86_64-linux` is built.
+- The build rewrites `compatibilitytool.vdf` so the tool registers under its own name, `DW-Proton-<base>-<release>`, instead of the archive name, and installs it to `share/steam/compatibilitytools.d/dw-proton` for `programs.steam.extraCompatPackages` to pick up.
+- The tarball ships a `.update-timestamp` marker inside its default prefix, and Proton stamps new prefixes with the mtime of the distribution's `wine.inf`. Wine re-runs its wine.inf prefix update whenever a prefix's marker disagrees with the live `wine.inf` mtime. The marker the tarball carries records the mtime from the machine that built the tarball, which the Nix store does not reproduce. The build therefore deletes the shipped marker and points Proton's stamp write at `/dev/null`. Wine seeds the timestamp itself on a prefix's first launch, and the check compares equal from then on.
+
+Packaging problems belong here. Game and Proton issues go upstream: to [DW-Proton](https://dawn.wine/dawn-winery/dwproton) for Dawn-Winery-specific problems, to [Valve's Proton](https://github.com/ValveSoftware/Proton) for general ones.
 
 ## Usage
 
-Add to your NixOS configuration:
+Add the input:
 
 ```nix
 {
-  inputs = {
-    nix-dw-proton.url = "github:shochraos/nix-dw-proton";
+  inputs.nix-dw-proton = {
+    url = "github:Shochraos/nix-dw-proton";
+    inputs.nixpkgs.follows = "nixpkgs";
   };
 }
 ```
 
-Then add it to your Steam configuration:
+Then add it to Steam:
 
 ```nix
-# In your Steam configuration (e.g., configuration.nix or steam.nix)
-programs.steam = {
-  enable = true;
-  extraCompatPackages = [
-    inputs.nix-dw-proton.packages.${system}.dw-proton
-  ];
-};
+{ inputs, pkgs, ... }:
+{
+  programs.steam = {
+    enable = true;
+    extraCompatPackages = [
+      inputs.nix-dw-proton.packages.${pkgs.stdenv.hostPlatform.system}.dw-proton
+    ];
+  };
+}
 ```
 
-After rebuilding your system, you should see something like "DW-Proton-[Version]" in Steam's compatibility tools list (Steam -> Settings -> Compatibility).
+`dw-proton` is also the flake's `default` package. After the rebuild, `DW-Proton-<base>-<release>` (currently `DW-Proton-11.0-5`) appears in Steam's compatibility tools list (Steam → Settings → Compatibility).
 
 ## Updates
 
-This package automatically checks for updates periodically and creates a pull request when a new version is available on the Dawn-Winery repository. To get the latest version:
+Every day at 00:00 UTC (and on manual dispatch), the update workflow queries the Dawn-Winery release API, parses the latest `dwproton-<base>-<release>` tag, picks the `dwproton-*-x86_64` archive asset, hashes it with `nix hash file`, and rewrites `versions.json`. A new version is committed straight to `main`, and CI builds it on the next push. To pick up a new version:
 
-1. Update your flake inputs:
 ```bash
 nix flake update nix-dw-proton
-```
-
-2. Rebuild your system:
-```bash
 sudo nixos-rebuild switch
 ```
 
-## Contributing
+## Development
 
-This is a community-maintained package and help is welcome! If you'd like to contribute:
+`nix build` builds the pinned release and `nix flake check` evaluates the flake. Pushes and PRs to `main` run both on CI, where the build step also checks that `compatibilitytool.vdf` and an executable `proton` land in the installed tool directory. nixpkgs is pinned to `nixpkgs-unstable`.
 
-1. Issues: 
-   - Report packaging issues (e.g., installation problems, Steam not detecting the tool)
-   - Problems with the Nix flake itself
-   - Note: For issues with games or Proton itself, please report to:
-     - [DW-Proton](https://dawn.wine/dawn-winery/dwproton) for Dawn-Winery-specific issues
-     - [Valve Proton](https://github.com/ValveSoftware/Proton) for general Proton issues
+## License
 
-2. Pull Requests: 
-   - Improvements to the Nix packaging
-   - Documentation updates
-   - Automation enhancements
-
-3. Documentation:
-   - Help improve installation instructions
-   - Add usage examples
-   - Clarify system requirements
-
-This repository only handles the Nix packaging of DW-Proton. We can't fix issues with the underlying Proton implementation.
-
-## Credits
-
-This package is just a Nix flake wrapper around:
-
-- [DW-Proton](https://dawn.wine/dawn-winery/dwproton) by the Dawn-Winery team - a fork of Proton-CachyOS with additional optimizations
-- [Proton](https://github.com/ValveSoftware/Proton) by Valve Corporation - the original compatibility layer for Steam Play
-
-All credit for the underlying software goes to their respective teams. This repository simply provides the Nix packaging to make it easier to use on NixOS.
+The [LICENSE](LICENSE) file documents the license the packaged software ships under: Valve's BSD-style license for Proton. The repository itself is Nix packaging only.
