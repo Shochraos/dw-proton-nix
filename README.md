@@ -18,8 +18,8 @@ Add the input:
 
 ```nix
 {
-  inputs.nix-dw-proton = {
-    url = "github:Shochraos/nix-dw-proton";
+  inputs.dw-proton-nix = {
+    url = "github:Shochraos/dw-proton-nix";
     inputs.nixpkgs.follows = "nixpkgs";
   };
 }
@@ -33,7 +33,7 @@ Then add it to Steam:
   programs.steam = {
     enable = true;
     extraCompatPackages = [
-      inputs.nix-dw-proton.packages.${pkgs.stdenv.hostPlatform.system}.dw-proton
+      inputs.dw-proton-nix.packages.${pkgs.stdenv.hostPlatform.system}.dw-proton
     ];
   };
 }
@@ -46,7 +46,7 @@ Then add it to Steam:
 Every day at 00:00 UTC (and on manual dispatch), the update workflow queries the Dawn-Winery release API, parses the latest `dwproton-<base>-<release>` tag, picks the `dwproton-*-x86_64` archive asset, hashes it with `nix hash file`, and rewrites `versions.json`. A new version is committed straight to `main`, and CI builds it on the next push. To pick up a new version:
 
 ```bash
-nix flake update nix-dw-proton
+nix flake update dw-proton-nix
 sudo nixos-rebuild switch
 ```
 
